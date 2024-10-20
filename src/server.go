@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -47,6 +48,8 @@ func handlePostQuestion(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	portPtr := flag.String("port", "8081", "The port the server listens on.")
+	flag.Parse()
 	finalHandler := mw.LoggingMiddleware(
 		mw.RecoveryMiddleware(
 			mw.CORSMiddleware(
@@ -60,6 +63,6 @@ func main() {
 	)
 
 	http.HandleFunc("/question", finalHandler)
-	fmt.Println("Server is running at http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	fmt.Println("Server is running at http://localhost:" + *portPtr)
+	log.Fatal(http.ListenAndServe(":"+*portPtr, nil))
 }
