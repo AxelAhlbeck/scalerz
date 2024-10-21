@@ -1,6 +1,22 @@
 version: '3'
 
 services:
+    api:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        ports:
+            - '8081:8081'
+        depends_on:
+            - db
+        environment:
+            - ENV=local
+            - POSTGRES_DB=scalerz
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+            - POSTGRES_HOST=postgres
+            - POSTGRES_PORT=5432
+        #command: ./server
     db:
         image: postgres:14
         restart: always
