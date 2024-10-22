@@ -3,12 +3,10 @@ FROM golang:1.23.2 as go
 RUN mkdir /app
 COPY . /app
 
-WORKDIR /app/src
+WORKDIR /app/
 
-RUN go build server.go
-
-RUN chmod a+x server
+RUN go build src/server/main.go
 
 EXPOSE 8081
 
-CMD ["/app/src/server"]
+CMD ["./main"]
