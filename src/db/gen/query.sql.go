@@ -27,13 +27,40 @@ func (q *Queries) GetAnswer(ctx context.Context, question string) (Question, err
 	return i, err
 }
 
-const getQustion = `-- name: GetQustion :one
+const getQuestion = `-- name: GetQuestion :one
 SELECT id, question, answer, created_at, updated_at FROM question
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetQustion(ctx context.Context, id int32) (Question, error) {
-	row := q.db.QueryRow(ctx, getQustion, id)
+func (q *Queries) GetQuestion(ctx context.Context, id int32) (Question, error) {
+	row := q.db.QueryRow(ctx, getQuestion, id)
+	var i Question
+	err := row.Scan(
+		&i.ID,
+		&i.Question,
+		&i.Answer,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const insertAnswer = `-- name: InsertAnswer :one
+INSERT INTO question (
+    question, answer
+) VALUES (
+    $1, $2
+)
+RETURNING id, question, answer, created_at, updated_at
+`
+
+type InsertAnswerParams struct {
+	Question string
+	Answer   string
+}
+
+func (q *Queries) InsertAnswer(ctx context.Context, arg InsertAnswerParams) (Question, error) {
+	row := q.db.QueryRow(ctx, insertAnswer, arg.Question, arg.Answer)
 	var i Question
 	err := row.Scan(
 		&i.ID,

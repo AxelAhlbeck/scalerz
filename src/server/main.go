@@ -21,13 +21,21 @@ func questionHandler(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
+}
 
+func answerHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		handlers.PostAnswerHandler(w, r)
+	default:
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}
 }
 
 func main() {
 	portPtr := flag.String("port", "8081", "The port the server listens on.")
 	flag.Parse()
-	finalHandler := mw.LoggingMiddleware(
+	finalQuestionHandler := mw.LoggingMiddleware(
 		mw.RecoveryMiddleware(
 			mw.CORSMiddleware(
 				mw.AuthenticationMiddleware(
@@ -38,8 +46,19 @@ func main() {
 			),
 		),
 	)
-
-	http.HandleFunc("/question", finalHandler)
+	finalAnswerHandler := mw.LoggingMiddleware(
+		mw.RecoveryMiddleware(
+			mw.CORSMiddleware(
+				mw.AuthenticationMiddleware(
+					mw.RateLimitingMiddleware(
+						mw.RequestIDMiddleware(answerHandler),
+					),
+				),
+			),
+		),
+	)
+	http.HandleFunc("/question", finalQuestionHandler)
+	http.HandleFunc("/answer", finalAnswerHandler)
 	fmt.Println("Server is running at http://localhost:" + *portPtr)
 	log.Fatal(http.ListenAndServe(":"+*portPtr, nil))
 }

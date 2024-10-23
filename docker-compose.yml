@@ -27,7 +27,7 @@ services:
             - '5432:5432'
         volumes:
             - pgdata:/var/lib/postgresql/data
-            - ./db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
+            - ./src/db/init.sql:/docker-entrypoint-initdb.d/create_tables.sql
 
     adminer:
         image: adminer
